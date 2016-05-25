@@ -34,6 +34,7 @@
 
     // Naked function reference for surrogate-prototype-swapping.
     //surrogate：n.代理，代表;代用品，代替，代孕者，[心]代用人物;〈美〉遗嘱检验法庭[法官];adj.代理的;代理的;v.代理，替代;
+    //空函数，用于原型转换
     var Ctor = function () {
     };
 
@@ -78,12 +79,22 @@
     //表达式void 0的目的是生成一个标准的undefined值，避免直接使用undeinfed之是担心有人重定义了全局变量undefined
     //参考资料：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/void
 
+    /****
+     * 该函数功能，其实就是为func函数绑定执行上下文
+     * @param func
+     * @param context
+     * @param argCount
+     * @returns {*}
+     */
     var optimizeCb = function (func, context, argCount) {
         //如果没有传上下文参数，或者上下文参数是undefined，则直接返回func参数（记住：函数参数未传，则默认值是undefined！）
+        //void 0 === undefined 返回 true
+        //因为只有1个参数，所以，直接返回该func了，不做任何优化
         if (context === void 0) return func;
+        //argCount：参数个数
         //如果argCount参数显示的传入了null或者不传(不传即是undefined，而undefined==null是返回true)，则直接执行分支语句3
         switch (argCount == null ? 3 : argCount) {
-            //argCount==1,返回一个匿名函数，其参数是参数是新传入的value参数，该匿名函数内部调用func，func上下文是context，参数是value
+            //argCount==1,返回一个匿名函数，其参数是新传入的value参数，该匿名函数内部调用func，func上下文是context，参数是value
             // 这是一种很重要的闭包使用技巧，用一个函数A生成另外一个函数B，而B可以使用A内部的所有局部变量
             case 1:
                 return function (value) {
@@ -108,6 +119,7 @@
 
         //如果argCount不等于1,2,3,4,null中任何一个值的话，就返回一个全参数的函数，
         // 上下文context，外层函数的参数arguments全部传入作为其参数，包括context参数本身
+        //注意，这里使用了apply方法，而不是上面的call方法了
         return function () {
             return func.apply(context, arguments);
         };
