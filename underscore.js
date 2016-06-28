@@ -127,6 +127,7 @@
     // A mostly-internal function to generate callbacks that can be applied
     // to each element in a collection, returning the desired result — either
     // identity, an arbitrary callback, a property matcher, or a property accessor.
+    //cb函数强依赖optimizeCb函数
     var cb = function (value, context, argCount) {
         //如果没有传入value参数，则直接返回_.identity函数
         if (value == null) return _.identity;
@@ -140,7 +141,8 @@
         return _.property(value);
     };
 
-    //调用cb函数：关键看value是个什么值了！
+    //iteratee函数其实就是调用cb函数：关键看value是个什么值了！
+    //这里的目的是将cb函数通过变量_暴露出去
     _.iteratee = function (value, context) {
         return cb(value, context, Infinity);
     };
