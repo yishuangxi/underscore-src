@@ -246,13 +246,17 @@
       }
          最后的func，就是最初的参数iteratee
          **/
+        //绑定了itertee函数的执行上下文，且该iteratee的参数是任意多：请参考optimizeCb函数的实现
         iteratee = optimizeCb(iteratee, context);
         var i, length;
+        //类数组的遍历方式：注意参数的传入顺序: value, index, obj
         if (isArrayLike(obj)) {
             for (i = 0, length = obj.length; i < length; i++) {
                 iteratee(obj[i], i, obj);
             }
-        } else {
+        }
+        //对象的遍历方式：注意参数的传入顺序: value, key, obj
+        else {
             var keys = _.keys(obj);
             for (i = 0, length = keys.length; i < length; i++) {
                 iteratee(obj[keys[i]], keys[i], obj);
