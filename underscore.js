@@ -267,7 +267,8 @@
 
     // Return the results of applying the iteratee to each element.
     _.map = _.collect = function (obj, iteratee, context) {
-        //这里调用cb(iteratee, context)跟调用optimizeCb(iteratee, context)的结果完全是一回事，搞不懂为什么要搞这么麻烦！搞懂了，这里是为了统一编码风格，这种调用方式到处都有！
+        //这里调用cb(iteratee, context)跟调用optimizeCb(iteratee, context)的结果完全是一回事，搞不懂为什么要搞这么麻烦！
+        // 搞懂了，这里是为了统一编码风格，这种调用方式到处都有！
         //cb这里还多了一层函数嵌套！
         iteratee = cb(iteratee, context);
         //下面2行代码用了简写的逻辑判断：
@@ -280,6 +281,13 @@
          length = ( isArray ? obj.length : (keys = _.keys(obj)).length )
          后续的currentKey直接用isArray来做判断。
          **/
+
+        /***
+         * 另外一种理解方式：
+         * 拿keys，拿length，以及遍历的时候，拿value
+         * 事情简单了：第一行代码拿keys，第二行代码拿length，第三行代码（for循环中的第一行代码）就是拿value了
+         */
+
         var keys = !isArrayLike(obj) && _.keys(obj),
             length = (keys || obj).length,
             results = Array(length);
