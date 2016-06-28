@@ -214,6 +214,7 @@
     //具有length属性且其值是number类型，且值>=0的，都属于类数组！比如：arguments, string，document.getElementsByTagName()之类的
     //当然，长度length得有个上限:MAX_ARRAY_INDEX
     //_.isArrayLike包含了_.isArray
+    //有length属性，且length类型是number的，就都认为是arrayLike对象了
     var isArrayLike = function (collection) {
         var length = collection && collection.length;
         return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
