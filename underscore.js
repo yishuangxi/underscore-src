@@ -395,6 +395,7 @@
 
     // Determine if the array or object contains a given value (using `===`).
     // Aliased as `includes` and `include`.
+    //
     _.contains = _.includes = _.include = function (obj, target, fromIndex) {
         //如果obj不是数组，则直接取obj的所有的value值组成一个数组，并重新赋值给obj
         if (!isArrayLike(obj)) obj = _.values(obj);
@@ -831,7 +832,7 @@
         //isSorted是数字类型的时候
         if (typeof isSorted == 'number') {
             //如果isSorted<0，则从0和length+isSorted中取最大值，并赋值给i，否则赋值i=isSorted
-            //这里length+isSorted其实是数组的一个位置，最后一个位置是-1,这里通过length加一个负数来转变成一个正的序号，负数过大则直接取0
+            //这里length+isSorted其实是数组的一个位置，最后一个位置是-1,这里通过length加一个负数来转变成一个正的序号，负数绝对值大于length，则直接取0
             i = isSorted < 0 ? Math.max(0, length + isSorted) : isSorted;
         } else if (isSorted && length) {//isSorted不是数字，但等效真值，且length>0的时候
             i = _.sortedIndex(array, item);//调用二分查找法，提升查找效率！
@@ -1183,23 +1184,31 @@
 
     // Keys in IE < 9 that won't be iterated by `for key in ...` and thus missed.
     //一个枚举IE9以下的枚举bug，如果对象的某个属性，在其作用域链上有一个相同的属性，且是不可枚举的，那么，在ie9以下用for in 循环也无法遍历出来
+    //如果一个对象包含了其原型上的某个不可枚举的属性，那么该属性还是可以枚举出来的,但是，在ie9里面，toString属性是不会被枚举，是ie9的bug
     //参考资料：https://developer.mozilla.org/zh-CN/docs/ECMAScript_DontEnum_attribute
     var hasEnumBug = !{toString: null}.propertyIsEnumerable('toString');
     //以下是常用的不可枚举的属性
     var nonEnumerableProps = ['valueOf', 'isPrototypeOf', 'toString',
         'propertyIsEnumerable', 'hasOwnProperty', 'toLocaleString'];
 
+    //收集不可枚举对象
     function collectNonEnumProps(obj, keys) {
         var nonEnumIdx = nonEnumerableProps.length;
         var constructor = obj.constructor;
+        //如果constructor是函数，那么，proto就是该函数的原型对象，否则，proto就是Object.prototype对象
+        //这里的目的是，取obj的原型，用于在后面判断当前obj的某一个属性值，是否和其原型上的属性值相等
         var proto = (_.isFunction(constructor) && constructor.prototype) || ObjProto;
 
         // Constructor is a special case.
         var prop = 'constructor';
+        //对于constructor而言，如果obj包含了该属性，并且该属性不在keys里面，那么，将其push进keys里面
+        //如果没有手动指定某一个对象o的constructor属性，比如，o={}, 或者o = new F(), 那么o.hasOwnProperty('constructor') 始终返回false
+        //如果指定了，即o.constructor = function(){},那么，o.hasOwnProperty('constructor')返回true
         if (_.has(obj, prop) && !_.contains(keys, prop)) keys.push(prop);
 
         while (nonEnumIdx--) {
             prop = nonEnumerableProps[nonEnumIdx];
+            //只有prop属性在obj里面，并且其值不等于该obj的原型上该属性的值，并且，keys里面不包含该key的情况下，就将该prop值push进keys数组
             if (prop in obj && obj[prop] !== proto[prop] && !_.contains(keys, prop)) {
                 keys.push(prop);
             }
@@ -1208,7 +1217,7 @@
 
     // Retrieve the names of an object's own properties.
     // Delegates to **ECMAScript 5**'s native `Object.keys`
-    //返回一个对象所有的自有keys！
+    //返回一个对象所有的自有keys！即非原型上的key
     _.keys = function (obj) {
         //如果不是Object，则直接返回空数组
         if (!_.isObject(obj)) return [];
@@ -1237,7 +1246,7 @@
     };
 
     // Retrieve the values of an object's properties.
-    //返回一个对象所有的自有值（非原型链上的值）
+    //返回一个对象所有的自有值（非原型链上的值），对应函数：_.keys
     _.values = function (obj) {
         var keys = _.keys(obj);
         var length = keys.length;
@@ -1300,6 +1309,9 @@
     // Assigns a given object with all the own properties in the passed-in object(s)
     // (https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)
     //只拷贝自有属性！全部覆盖！
+    //由于这里只传入了第一个参数，那么，第二个参数就是undefined，为false，即createAssigner函数的第二个参数undefinedOnly为false，
+    //所以，_.extendOwn和_.assign函数的所有对象参数，后面的将会覆盖前面的
+    //而第一个参数掺入的是_.keys函数，
     _.extendOwn = _.assign = createAssigner(_.keys);
 
     // Returns the first key on an object that passes a predicate test
