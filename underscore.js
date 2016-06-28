@@ -1605,7 +1605,7 @@
     };
 
     //生成函数的函数：
-    //_.property('key')生成一个函数，该函数参数是一个obj对象，该函数执行之后，只返回obj对象中的值，否则返回undefined
+    //_.property生成一个函数，该函数参数是一个obj对象，返回obj对象中键为参数key的值，没有就返回undefined
     _.property = function (key) {
         return function (obj) {
             return obj == null ? void 0 : obj[key];
