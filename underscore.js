@@ -149,12 +149,17 @@
 
     // An internal function for creating assigner functions.
     //该函数实现了对象属性的拷贝功能！
-    //crateAssigner执行后，创建一个函数A，函数A的第一个参数为obj对象
-    //如果函数A的参数大于或等于2个，则从第二个及后续的参数对象B开始，执行B对象属性到obj对象属性的覆盖动作
-    //满足如下2个条件之一即可成功执行覆盖动作：1，undefinedOnly参数值为假，则不管obj中该属性是否已定义，全部覆盖！2，若undefinedOnly为真，则只能覆盖obj中未定义的属性！
+    //crateAssigner执行后，创建一个函数F，函数F的第一个参数为obj对象
+    //如果函数F的参数大于或等于2个，则从第二个及后续的参数对象B开始，执行B对象属性到obj对象属性的覆盖动作
+    //满足如下2个条件之一即可成功执行覆盖动作：1，undefinedOnly参数值为假，则不管obj中该属性是否已定义，全部覆盖！2，若undefinedOnly为真，则只能覆盖obj中未定义的属性（注意：不包含null）！
     //_.extendOwn = _.assign = createAssigner(_.keys);
     //_.extend = createAssigner(_.allKeys);
     //_.defaults = createAssigner(_.allKeys, true);
+
+    //该函数返回了一个使用了keysFunc参数和undefinedOnly参数的函数F
+    //keysFunc：筛选函数，根据传入的对象参数，生成keys的函数，即通过该函数可以指定哪些key可以覆盖目标对象的key
+    //undefinedOnly：是否仅覆盖值为undefined的key。如果为false，则不管目标对象obj的属性为什么，都覆盖，否则，只覆盖obj中未定义的属性（注意：不包含null）
+    //函数F的功能：
     var createAssigner = function (keysFunc, undefinedOnly) {
         return function (obj) {
             var length = arguments.length;
@@ -162,7 +167,7 @@
             if (length < 2 || obj == null) return obj;
             for (var index = 1; index < length; index++) {
                 var source = arguments[index],
-                    keys = keysFunc(source),
+                    keys = keysFunc(source), //该keysFunc将根据source来决定哪些key是可以被拷贝到目标对象上去
                     l = keys.length;
                 for (var i = 0; i < l; i++) {
                     var key = keys[i];
@@ -1571,6 +1576,7 @@
     };
 
     // Keep the identity function around for default iteratees.
+    //直接返回参数的一个函数，不明白什么意思
     _.identity = function (value) {
         return value;
     };
