@@ -180,20 +180,29 @@
     };
 
     // An internal function for creating a new object that inherits from another.
-    //创建一个对象继承对象的基本函数！！！其实是一个兼容版的Object.create函数
+    //创建一个对象继承对象的基本函数，其实是一个兼容版的Object.create函数
     var baseCreate = function (prototype) {
         //如果prototype不是对象，则直接返回一个空对象
         if (!_.isObject(prototype)) return {};
         //如果浏览器支持Object.create函数，则直接调用内置的Object.create函数来创建对象，该对象继承自prototype参数
         if (nativeCreate) return nativeCreate(prototype);
 
-        //如果不支持Object.create，一下继承方式出现在ExtJs当中！
+        //如果不支持Object.create，以下继承方式出现在ExtJs当中！
         //把一个空函数的原型指向prototype对象
         Ctor.prototype = prototype;
         //创建出一个空对象，该对象的原型就是prototype对象
         var result = new Ctor;
         //恢复空函数的prototype属性为null
         Ctor.prototype = null;
+
+        //对于对象result，即使其构造函数的prototype属性已经被重置为null了，但该对象依然可以访问到构造函数之前的prototype中的值
+        //重要结论：某一个对象的原型链在构造该对象的时候就已经创建好了，不再受对象构造函数的改变而改变了！！！
+        /****
+         * //例子
+         * function Ctor(){}; Ctor.prototype = {a:'aaa'}; var c = Ctor(); console.log(c.a) //输出'aaa'
+         * Ctor.prototype = null; console.log(c.a) //仍然输出'aaa'
+         * Ctor.prototype = {b:'bbb'}; console.log(c.b) //输出二undefined，因为c对象的原型链在创建该对象的时候，就已经创建好了！
+         */
 
         return result;
     };
