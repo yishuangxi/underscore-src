@@ -58,7 +58,7 @@
     // Export the Underscore object for **Node.js**, with
     // backwards-compatibility for the old `require()` API. If we're in
     // the browser, add `_` as a global object.
-    //如果exports作为一个全局变量存在，则说明支持模块化加载，否则，就直接把_作为全局变量暴露出去
+    //如果exports作为一个全局变量存在，则说明支持模块化加载，否则，就直接把_作为全局对象root的一个属性暴露出去
     if (typeof exports !== 'undefined') {
         //如果module和module.exports都存在，则说明该环境是标准的commonjs环境，则把_作为模块接口暴露出去
         if (typeof module !== 'undefined' && module.exports) {
@@ -80,7 +80,7 @@
     //参考资料：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/void
 
     /****
-     * 该函数功能，其实就是为func函数绑定执行上下文
+     * 该函数功能：生成一个函数，该函数绑定了上下文context，并且仅能使用argCount个参数
      * @param func
      * @param context
      * @param argCount
@@ -89,28 +89,27 @@
     var optimizeCb = function (func, context, argCount) {
         //如果没有传上下文参数，或者上下文参数是undefined，则直接返回func参数（记住：函数参数未传，则默认值是undefined！）
         //void 0 === undefined 返回 true
-        //因为只有1个参数，所以，直接返回该func了，不做任何优化
+        //因为只有1个参数，所以，直接返回该func了，不做任何优化：void是一个操作符，执行之后不会返回值（不会返回值其实就是返回undefined）
         if (context === void 0) return func;
         //argCount：参数个数
         //如果argCount参数显示的传入了null或者不传(不传即是undefined，而undefined==null是返回true)，则直接执行分支语句3
         switch (argCount == null ? 3 : argCount) {
-            //argCount==1,返回一个匿名函数，其参数是新传入的value参数，该匿名函数内部调用func，func上下文是context，参数是value
-            // 这是一种很重要的闭包使用技巧，用一个函数A生成另外一个函数B，而B可以使用A内部的所有局部变量
+            //argCount==1:指定func函数的上下文为context，并且该func函数只能有1个参数被使用。
             case 1:
                 return function (value) {
                     return func.call(context, value);
                 };
-            //argCount==2,跟argCount==1的情况一样，只是多了一个参数other
+            //argCount==2,跟argCount==1的情况一样，只是该func函数只能有2个参数被使用。
             case 2:
                 return function (value, other) {
                     return func.call(context, value, other);
                 };
-            //argCount==3,跟argCount==1的情况一样，只是多了2个参数index, collection
+            //argCount==3,跟argCount==1的情况一样，只是该func函数只能有3个参数被使用。
             case 3:
                 return function (value, index, collection) {
                     return func.call(context, value, index, collection);
                 };
-            //argCount==4,跟argCount==1的情况一样，只是多了3个参数value, index, collection
+            //argCount==4,跟argCount==1的情况一样，只是该func函数只能有4个参数被使用。
             case 4:
                 return function (accumulator, value, index, collection) {
                     return func.call(context, accumulator, value, index, collection);
@@ -118,7 +117,7 @@
         }
 
         //如果argCount不等于1,2,3,4,null中任何一个值的话，就返回一个全参数的函数，
-        // 上下文context，外层函数的参数arguments全部传入作为其参数，包括context参数本身
+        // 上下文context，外层函数的参数arguments全部传入作为其参数，context作为该函数的上下文
         //注意，这里使用了apply方法，而不是上面的call方法了
         return function () {
             return func.apply(context, arguments);
@@ -131,7 +130,7 @@
     var cb = function (value, context, argCount) {
         //如果没有传入value参数，则直接返回_.identity函数
         if (value == null) return _.identity;
-        //如果value是函数，则返回optimizeCb函数
+        //如果value是函数，则返回optimizeCb函数：指定了value函数的上下文context，以及argCount
         if (_.isFunction(value)) return optimizeCb(value, context, argCount);
         //如果value是对象，则返回_.matcher(value)
         if (_.isObject(value)) return _.matcher(value);
