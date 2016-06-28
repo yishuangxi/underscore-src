@@ -1378,9 +1378,10 @@
     };
 
     // Returns whether an object has a given set of `key:value` pairs.
+    //对象object是否包含attrs对象里面所有的键值对，注意，attrs不是数组，是对象！对象！对象！
     _.isMatch = function (object, attrs) {
         var keys = _.keys(attrs), length = keys.length;
-        //如果object是个null：如果attrs也是个空数组，那么，返回true，否则返回false
+        //如果object是个null
         if (object == null) return !length;
         var obj = Object(object);
         for (var i = 0; i < length; i++) {
@@ -1622,7 +1623,8 @@
 
     // Returns a predicate for checking whether an object has a given set of
     // `key:value` pairs.
-    //生成一组匹配特定键值对的函数，该函数参数为一个obj.。类似_.property
+    //_.matcher生成一个函数，该函数用于判断某一个对象obj是否包含指定对象attrs
+    //注意，这里attrs也是一个对象！对象！对象！
     _.matcher = _.matches = function (attrs) {
         //这里是把attrs的自有属性拷贝到{}对象上来
         attrs = _.extendOwn({}, attrs);
