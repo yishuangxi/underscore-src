@@ -299,17 +299,27 @@
     };
 
     // Create a reducing function iterating left or right.
+    //根据函数体可知，dir只能为+1或者-1，+1代表从左向右，-1代表从右向左遍历
+    //这里之所以这么做，主要是因为createReduce函数是一个内部函数，并没有对外提供接口，所以没有对dir参数做限制
     function createReduce(dir) {
         // Optimized iterator function as using arguments.length
         // in the main function will deoptimize the, see #1991.
         function iterator(obj, iteratee, memo, keys, index, length) {
             for (; index >= 0 && index < length; index += dir) {
                 var currentKey = keys ? keys[index] : index;
+                //这里也要关注一下iteratee的参数：iteratee(memo, obj[currentKey], currentKey, obj);
+                //memo：上一次的值；obj[currentKey]：当前遍历出的值；currentKey：当前遍历的key；遍历的obj对象
                 memo = iteratee(memo, obj[currentKey], currentKey, obj);
             }
             return memo;
         }
 
+        /****
+         * obj:遍历的对象
+         * itertee:遍历用的函数
+         * memo:上一次iteratee执行的结果
+         * context：iteratee执行的上下文
+         */
         return function (obj, iteratee, memo, context) {
             /**
              传入argCount=4的时候，optimizeCb函数如下：
@@ -322,6 +332,7 @@
             iteratee = optimizeCb(iteratee, context, 4);
             var keys = !isArrayLike(obj) && _.keys(obj),
                 length = (keys || obj).length,
+                //起始index，其实就是向左还是向右遍历
                 index = dir > 0 ? 0 : length - 1;
             // Determine the initial value if none is provided.
             if (arguments.length < 3) {
