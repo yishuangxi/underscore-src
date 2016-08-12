@@ -1737,6 +1737,9 @@
 
     // If the value of the named `property` is a function then invoke it with the
     // `object` as context; otherwise, return it.
+    //void 0:表示执行一个表达式,但是不返回任何值:其实就是返回undefined, void 0 === undefined为true
+    //如果object不为null,并且object[property]是一个函数,则以object为上下文,执行该函数object[property], 否则降级执行fallback函数
+    //当然,如果object[property]不是函数,或者fallback也不是函数,那么,就直接返回该值了
     _.result = function (object, property, fallback) {
         var value = object == null ? void 0 : object[property];
         if (value === void 0) {
@@ -1747,14 +1750,20 @@
 
     // Generate a unique integer id (unique within the entire client session).
     // Useful for temporary DOM ids.
+
     var idCounter = 0;
+    //生成唯一id, 每调用一次_.uniqueId,就生成一个在原来的基础之上累加1个值
     _.uniqueId = function (prefix) {
+        //这里先将idCounter累加1, 并通过加一个空字符串将数字转换成字符串,然后再赋值给id,
+
         var id = ++idCounter + '';
+        //如果有前缀,则添加前缀,否则不加
         return prefix ? prefix + id : id;
     };
 
-    // By default, Underscore uses ERB-style template delimiters, change the
+    // By default, Underscore uses ERB-style template delimiters(分隔符), change the
     // following template settings to use alternative delimiters.
+    //
     _.templateSettings = {
         evaluate: /<%([\s\S]+?)%>/g,
         interpolate: /<%=([\s\S]+?)%>/g,
