@@ -1034,6 +1034,7 @@
     // arguments pre-filled, without changing its dynamic `this` context. _ acts
     // as a placeholder, allowing any combination of arguments to be pre-filled.
     _.partial = function (func) {
+        //从arguments里面取出第二个及后面所有的参数,即不包括func的所有参数
         var boundArgs = slice.call(arguments, 1);
         var bound = function () {
             var position = 0, length = boundArgs.length;
@@ -1317,6 +1318,8 @@
     };
 
     // Invert the keys and values of an object. The values must be serializable.
+    //invert: 使转化
+    //该函数使一个对象的key和value位置对调,并返回新对象
     _.invert = function (obj) {
         var result = {};
         var keys = _.keys(obj);
@@ -1381,6 +1384,7 @@
     };
 
     // Return a copy of the object without the blacklisted properties.
+    //omit: 省略
     _.omit = function (obj, iteratee, context) {
         if (_.isFunction(iteratee)) {
             iteratee = _.negate(iteratee);
@@ -1397,8 +1401,12 @@
     _.defaults = createAssigner(_.allKeys, true);
 
     // Create a (shallow-cloned) duplicate of an object.
+    //这是一个浅拷贝函数:
     _.clone = function (obj) {
+        //如果不是object,则直接返回就行
         if (!_.isObject(obj)) return obj;
+        //如果是数组,则调用slice函数,不传入任何参数,就会返回一个拷贝
+        //如果是一个对象,则调用_.extend把obj上的属性拷贝到一个空对象{}上去
         return _.isArray(obj) ? obj.slice() : _.extend({}, obj);
     };
 
@@ -1685,11 +1693,13 @@
     };
 
     // A (possibly faster) way to get the current timestamp as an integer.
+    //获取当前的时间的毫秒数
     _.now = Date.now || function () {
         return new Date().getTime();
     };
 
     // List of HTML entities for escaping.
+    //转移字符的实体
     var escapeMap = {
         '&': '&amp;',
         '<': '&lt;',
@@ -1698,6 +1708,7 @@
         "'": '&#x27;',
         '`': '&#x60;'
     };
+
     var unescapeMap = _.invert(escapeMap);
 
     // Functions for escaping and unescaping strings to/from HTML interpolation.
@@ -1706,15 +1717,22 @@
             return map[match];
         };
         // Regexes for identifying a key that needs to be escaped
+        //根据传入的参数map的keys生成一个正则表达式,
+        // 比如,传入escapeMap,则生成表达式的字符串源是这样的: '(?:&|<|>|"|'|`)'
         var source = '(?:' + _.keys(map).join('|') + ')';
         var testRegexp = RegExp(source);
+        //全局替换正则
         var replaceRegexp = RegExp(source, 'g');
         return function (string) {
+            //如果string参数是null,则将其转成空字符串'',否则,将string直接转成字符串,而无论string是数组,或者是对象,或者是undefined等等
             string = string == null ? '' : '' + string;
+            //如果有任何匹配到了要替换的正则,则使用字符串的replace函数全局替换,否则,直接返回原始字符串
             return testRegexp.test(string) ? string.replace(replaceRegexp, escaper) : string;
         };
     };
+    //转义函数
     _.escape = createEscaper(escapeMap);
+    //反转义函数
     _.unescape = createEscaper(unescapeMap);
 
     // If the value of the named `property` is a function then invoke it with the
