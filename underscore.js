@@ -547,6 +547,8 @@
     // Sample **n** random values from a collection.
     // If **n** is not specified, returns a single random element.
     // The internal `guard` argument allows it to work with `map`.
+    //从obj里面去样本数据,如果obj不是数组,则从obj中任意取一个值
+    //如果obj是数组,则先将obj打乱,然后再取出前n个元素取出来
     _.sample = function (obj, n, guard) {
         if (n == null || guard) {
             if (!isArrayLike(obj)) obj = _.values(obj);
