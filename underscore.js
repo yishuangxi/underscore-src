@@ -50,8 +50,16 @@
      * @private
      */
     var _ = function (obj) {
+        //_作为普通函数执行的时候: 如果obj是_的实例(意思就是,obj对象是通过 new _()生成的),则直接返回该obj: eg: _({})
         if (obj instanceof _) return obj;
+        //如果_函数的执行上下文不是_的实例, 则返回一个var ins = new _(obj)实例, 这是一个递归调用:
+        // 1,因为obj不是_的实例,所以,new _(obj)不会执行_函数体中的第一句代码
+        // 2,因为var ins = new _(obj)执行的时候,_构造函数内的this指向的是当前构建的对象ins, 而ins又刚刚好是_的实例,所以,该函数内的第二句话也不会执行
+        // 3,所以,最后,new _(obj)执行的是该函数体内的第三句话,即给this对象绑定一个_wrapped属性,该属性指向obj
+        // 其实是给ins对象添加了一个_wrapped属性
+        // eg: _.call({}, []), 其中{}是指向上下文this, []是obj参数, 返回值是new _([])
         if (!(this instanceof _)) return new _(obj);
+        //执行上下文的_wrapped属性指向obj: eg:  var o = new _({})的时候,对象o的_wrapped属性指向obj对象{}
         this._wrapped = obj;
     };
 
