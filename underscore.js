@@ -92,7 +92,7 @@
         //因为只有1个参数，所以，直接返回该func了，不做任何优化：void是一个操作符，执行之后不会返回值（不会返回值其实就是返回undefined）
         if (context === void 0) return func;
         //argCount：参数个数
-        //如果argCount参数显示的传入了null或者不传(不传即是undefined，而undefined==null是返回true)，则直接执行分支语句3
+        //如果argCount参数显式的传入了null或者不传(不传即是undefined，而undefined==null是返回true)，则直接执行分支语句3
         switch (argCount == null ? 3 : argCount) {
             //argCount==1:指定func函数的上下文为context，并且该func函数只能有1个参数被使用。
             case 1:
@@ -1648,12 +1648,14 @@
     };
 
     // Predicate-generating functions. Often useful outside of Underscore.
+    //生成一个返回固定value的函数
     _.constant = function (value) {
         return function () {
             return value;
         };
     };
 
+    //空函数
     _.noop = function () {
     };
 
@@ -1687,6 +1689,7 @@
     };
 
     // Run a function **n** times.
+    //函数功能: 返回n个函数的数组,该n个函数的特征: 执行上下文是context, 函数参数仅1个
     _.times = function (n, iteratee, context) {
         var accum = Array(Math.max(0, n));
         iteratee = optimizeCb(iteratee, context, 1);
